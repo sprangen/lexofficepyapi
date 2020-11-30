@@ -21,7 +21,7 @@ A Python API Connector for LexOffice
 
 * Free software: GNU General Public License v3
 * Documentation: https://lexofficepyapi.readthedocs.io.
-
+* API Documentation: https://developers.lexoffice.io/docs/#lexoffice-api-documentation.
 
 Features
 --------

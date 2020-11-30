@@ -1,12 +1,37 @@
 #!/usr/bin/env python
 
 """Tests for `lexofficepyapi` package."""
+import os
 
 import pytest
+import mock
+from lexofficepyapi import Lexoffice
+from lexofficepyapi.lexofficepyapi import ImproperlyConfigured
 
 
-from lexofficepyapi import lexofficepyapi
+def test_ImproperlyConfigured():
+    try:
+        Lexoffice()
+    except ImproperlyConfigured:
+        pass
+    else:
+        raise
 
+def test_initialization():
+    api_key = os.environ.get("api_key")
+    lexoffice = Lexoffice(api_key=api_key)
+    assert lexoffice.api_key == api_key
+
+@pytest.fixture
+def lexoffice():
+    api_key = os.environ.get("api_key")
+    return Lexoffice(api_key=api_key)
+
+
+def test_create_company(lexoffice):
+    company = lexoffice.create_company(name="Testfirma")
+
+    assert company.get("company").get("name") == "Testfirma"
 
 @pytest.fixture
 def response():

@@ -1,5 +1,5 @@
 Welcome to lexofficepyAPI's documentation!
-======================================
+==========================================
 
 .. toctree::
    :maxdepth: 2
