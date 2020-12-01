@@ -18,13 +18,13 @@ def test_ImproperlyConfigured():
         raise
 
 def test_initialization():
-    api_key = os.environ.get("api_key")
+    api_key = os.environ.get("API_KEY")
     lexoffice = Lexoffice(api_key=api_key)
     assert lexoffice.api_key == api_key
 
 @pytest.fixture
 def lexoffice():
-    api_key = os.environ.get("api_key")
+    api_key = os.environ.get("API_KEY")
     return Lexoffice(api_key=api_key)
 
 @pytest.fixture
