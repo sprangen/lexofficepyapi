@@ -230,6 +230,7 @@ class Lexoffice:
                 "billing": [{}],
                 "shipping": [{}]
             },
+            "phoneNumbers": {},
             "note": note,
         }
 

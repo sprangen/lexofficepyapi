@@ -37,6 +37,8 @@ Additional options are:
     * contact_email_address: a String
     * contact_phone_number: a String
 
+
+
 .. note::
 
     There are limitations to the Lexoffice API:
