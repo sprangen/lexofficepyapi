@@ -9,7 +9,7 @@ class ImproperlyConfigured(Exception):
 
 
 @dataclass
-class ContactPerson:
+class Person:
     salutation: str
     firstName: str
     lastName: str
@@ -121,7 +121,7 @@ class Lexoffice:
         else:
             roles_dict[role] = {}
 
-        contact_person = ContactPerson(
+        contact_person = Person(
             salutation=contact_salutation,
             firstName=contact_first_name,
             lastName=contact_last_name,
@@ -225,6 +225,10 @@ class Lexoffice:
                 "vatRegistrationId": vat_registration_id,
                 "allowTaxFreeInvoices": allow_tax_free_invoices,
                 "contactPersons": contact_person
+            },
+            "addresses": {
+                "billing": [{}],
+                "shipping": [{}]
             },
             "note": note,
         }
