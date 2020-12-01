@@ -28,20 +28,114 @@ class Lexoffice:
         response = requests.get(resource_url, headers=self.headers)
         return response.json()
 
-    def create_company(self, name=None, role="customer", note=""):
+    def create_company(self, name=None, taxNumber=None, vatRegistrationId=None, allowTaxFreeInvoices=None, role="customer", roles=None, note=""):
 
         if name is None:
             raise ImproperlyConfigured("Lexoffice needs at least a name arguemnt to create a company")
+        if role != "customer" and role != "vendor":
+            raise ImproperlyConfigured("Lexoffice only accepts the roles customer or vendor")
         resource_url = self.base_url + "contacts"
-        #"{\n  \"roles\": {\n    \"customer\": {\n    },\n    \"vendor\": {\n    }\n  },\n  \"company\": {\n    \"name\": \"Testfirma\",\n    \"taxNumber\": \"12345/12345\",\n    \"vatRegistrationId\": \"DE123456789\",\n    \"allowTaxFreeInvoices\": true,\n    \"contactPersons\": [\n      {\n        \"salutation\": \"Herr\",\n        \"firstName\": \"Max\",\n        \"lastName\": \"Mustermann\",\n        \"emailAddress\": \"contactpersonmail@lexoffice.de\",\n        \"phoneNumber\": \"08000/11111\"\n      }\n    ]\n  },\n  \"addresses\": {\n    \"billing\": [\n      {\n        \"supplement\": \"Rechnungsadressenzusatz\",\n        \"street\": \"Hauptstr. 5\",\n        \"zip\": \"12345\",\n        \"city\": \"Musterort\",\n        \"countryCode\": \"DE\"\n      }\n    ],\n    \"shipping\": [\n      {\n        \"supplement\": \"Lieferadressenzusatz\",\n        \"street\": \"Schulstr. 13\",\n        \"zip\": \"76543\",\n        \"city\": \"MUsterstadt\",\n        \"countryCode\": \"DE\"\n      }\n    ]\n  },\n  \"emailAddresses\": {\n    \"business\": [\n      \"business@lexoffice.de\"\n    ],\n    \"office\": [\n      \"office@lexoffice.de\"\n    ],\n    \"private\": [\n      \"private@lexoffice.de\"\n    ],\n    \"other\": [\n      \"other@lexoffice.de\"\n    ]\n  },\n  \"phoneNumbers\": {\n    \"business\": [\n      \"08000/1231\"\n    ],\n    \"office\": [\n      \"08000/1232\"\n    ],\n    \"mobile\": [\n      \"08000/1233\"\n    ],\n    \"private\": [\n      \"08000/1234\"\n    ],\n    \"fax\": [\n      \"08000/1235\"\n    ],\n    \"other\": [\n      \"08000/1236\"\n    ]\n  },\n  \"note\": \"Notizen\"\n}"
+
+        roles_dict = {}
+        if roles is not None:
+            if not isinstance(roles, list):
+                raise ImproperlyConfigured("Lexoffice only accepts a list for the Argument roles")
+            for item in roles:
+                if item != "customer" and item != "vendor":
+                    raise ImproperlyConfigured("Lexoffice only accepts the roles customer or vendor")
+                roles_dict[item] = {}
+        else:
+            roles_dict[role]= {}
+
+
+        # This is an example Payload
+        #"{
+        # "roles": {
+        # "customer": {},
+        # "vendor":
+        # {    }
+        #   },
+        #   "company": {
+        #     "name": "Testfirma",
+        #     "taxNumber": "12345/12345",
+        #     "vatRegistrationId": "DE123456789",
+        #     "allowTaxFreeInvoices": true,
+        #     "contactPersons": [
+        #       {
+        #         "salutation": "Herr",
+        #         "firstName": "Max",
+        #         "lastName": "Mustermann",
+        #         "emailAddress": "contactpersonmail@lexoffice.de",
+        #         "phoneNumber": "08000/11111"
+        #       }
+        #     ]
+        #   },
+        #   "addresses": {
+        #     "billing": [
+        #       {
+        #         "supplement": "Rechnungsadressenzusatz",
+        #         "street": "Hauptstr. 5",
+        #         "zip": "12345",
+        #         "city": "Musterort",
+        #         "countryCode": "DE"
+        #       }
+        #     ],
+        #     "shipping": [
+        #       {
+        #         "supplement": "Lieferadressenzusatz",
+        #         "street": "Schulstr. 13",
+        #         "zip": "76543",
+        #         "city": "MUsterstadt",
+        #         "countryCode": "DE"
+        #       }
+        #     ]
+        #   },
+        #   "emailAddresses": {
+        #     "business": [
+        #       "business@lexoffice.de"
+        #     ],
+        #     "office": [
+        #       "office@lexoffice.de"
+        #     ],
+        #     "private": [
+        #       "private@lexoffice.de"
+        #     ],
+        #     "other": [
+        #       "other@lexoffice.de"
+        #     ]
+        #   },
+        #   "phoneNumbers": {
+        #     "business": [
+        #       "08000/1231"
+        #     ],
+        #     "office": [
+        #       "08000/1232"
+        #     ],
+        #     "mobile": [
+        #       "08000/1233"
+        #     ],
+        #     "private": [
+        #       "08000/1234"
+        #     ],
+        #     "fax": [
+        #       "08000/1235"
+        #     ],
+        #     "other": [
+        #       "08000/1236"
+        #     ]
+        #   },
+        #   "note": "Notizen"
+        # }"
         payload = {
                       "version": 0,
-                      "roles": {
-                        role: {
-                        }
-                      },
+                      "roles": roles_dict,
                       "company": {
                          "name": name,
+                          "taxNumber": taxNumber,
+                          "vatRegistrationId": vatRegistrationId,
+                          "allowTaxFreeInvoices": allowTaxFreeInvoices,
+
+
                       },
                       "note": note
                     }
