@@ -72,6 +72,25 @@ def test_raise_if_create_company_works_with_roles_list_entries(lexoffice):
     assert roles.get("customer", False)
     assert roles.get("vendor", False)
 
+def test_raise_if_create_company_contact_salutation_is_longer_then_25_chars(lexoffice):
+
+    try:
+        lexoffice.create_company(name="TestCase", contact_salutation="abcdefghijklmnopqrstuvwxyz1234567890")
+    except ImproperlyConfigured:
+        pass
+    else:
+        raise
+
+
+def test_raise_if_create_company_contact_with_missing_parameter(lexoffice):
+
+    try:
+        lexoffice.create_company(name="TestCase", contact_last_name="Failian")
+    except ImproperlyConfigured:
+        pass
+    else:
+        raise
+
 
 def test_create_company(lexoffice):
     company = lexoffice.create_company(name="Testfirma")
@@ -91,17 +110,9 @@ def test_retrieve_contact(company, lexoffice):
     contact =lexoffice.get_contact(contact_id)
     assert contact_id == contact.get('id')
 
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
 
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
+def test_create_company_with_contact_person(lexoffice):
 
+    company = lexoffice.create_company(name="Testfirma", contact_primary=True, contact_salutation="Herr", contact_first_name="Berthold", contact_last_name="Maier",)
 
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
+    assert company.get("company").get("contactPersons")[0].get('firstName') == "Berthold"

@@ -1,9 +1,54 @@
 """Main module."""
+from dataclasses import dataclass, asdict
+
 import requests as requests
 
 
 class ImproperlyConfigured(Exception):
     pass
+
+
+@dataclass
+class ContactPerson:
+    salutation: str
+    firstName: str
+    lastName: str
+    emailAddress: str
+    phoneNumber: str
+    primary: bool
+
+    def empty(self):
+        for key, value in asdict(self).items():
+            if value:
+                return False
+        return True
+
+
+    def validate_salutation(self):
+        if len(self.salutation) > 25:
+            raise ImproperlyConfigured(
+                "Lexoffice only accepts a Salutation with lesser then 25 Chars"
+            )
+
+    def validate(self):
+        if self.salutation:
+            self.validate_salutation()
+
+        to_validate = not(self.empty())
+
+        if to_validate:
+            for key, value in asdict(self).items():
+                if key == 'salutation':
+                    pass
+                elif key == "emailAddress":
+                    pass
+                elif key == "phoneNumber":
+                    pass
+                elif value is None:
+                    raise ImproperlyConfigured(
+                        f"Lexoffice needs {key} to create a Company Contact"
+                    )
+
 
 
 class Lexoffice:
@@ -40,6 +85,13 @@ class Lexoffice:
         allow_tax_free_invoices: bool = None,
         role="customer",
         roles=None,
+        contact_salutation: str = None,
+        contact_first_name: str = None,
+        contact_last_name: str = None,
+        contact_primary: bool = False,
+        contact_email_address: str = None,
+        contact_phone_number: str= None,
+
         note="",
     ):
 
@@ -68,6 +120,23 @@ class Lexoffice:
                 roles_dict[item] = {}
         else:
             roles_dict[role] = {}
+
+        contact_person = ContactPerson(
+            salutation=contact_salutation,
+            firstName=contact_first_name,
+            lastName=contact_last_name,
+            emailAddress=contact_email_address,
+            phoneNumber=contact_phone_number,
+            primary=contact_primary
+        )
+
+        contact_person.validate()
+        if contact_person.empty():
+            contact_person = []
+        else:
+            contact_person = asdict(contact_person)
+            contact_person = [contact_person]
+
 
         # This is an example Payload
         # "{
@@ -155,6 +224,7 @@ class Lexoffice:
                 "taxNumber": tax_number,
                 "vatRegistrationId": vat_registration_id,
                 "allowTaxFreeInvoices": allow_tax_free_invoices,
+                "contactPersons": contact_person
             },
             "note": note,
         }
