@@ -121,6 +121,6 @@ def test_create_company_with_contact_person(lexoffice):
 
 def test_search_contact(lexoffice):
 
-    company = lexoffice.create_company(name="FindeMich")
-    search_results = lexoffice.search_contact(searchTerm="FindeMich")
+    company = lexoffice.create_company(name="Bike and More")
+    search_results = lexoffice.search_contact(searchTerm="Bike")
     assert company.get('id') in search_results
