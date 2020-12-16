@@ -77,6 +77,43 @@ class Lexoffice:
         response = requests.get(resource_url, headers=self.headers)
         return response.json()
 
+    def search_contact(self, searchTerm):
+        page_number = 0
+        resource_url = self.base_url + f"contacts/?page={page_number}"
+        search_results = []
+        response = requests.get(resource_url, headers=self.headers)
+        response_json = response.json()
+        page_range = response_json.get("totalPages")
+        contact_list = response_json.get("content")
+        for page in range(page_range):
+            page_number = page
+            resource_url = self.base_url + f"contacts/?page={page_number}"
+            response = requests.get(resource_url, headers=self.headers)
+            response_json = response.json()
+            contact_list + response_json.get("content")
+
+        for contact in contact_list:
+            contact_id = contact.get('id')
+            if contact.get("company"):
+                details = contact.get("company")
+            else:
+                details = contact.get('person')
+            for key, value in details.items():
+                if value == searchTerm:
+                    search_results.append(contact_id)
+
+        return search_results
+
+
+    def get_invoice(self, id=None):
+        if id is None:
+            raise ImproperlyConfigured(
+                "Lexoffice needs an id argument to get an invoice"
+            )
+        resource_url = self.base_url + "invoices/" + id
+        response = requests.get(resource_url, headers=self.headers)
+        return response.json()
+
     def create_company(
         self,
         name: str = None,
@@ -237,3 +274,69 @@ class Lexoffice:
         response = requests.post(resource_url, json=payload, headers=self.headers)
         id = response.json().get("id")
         return self.get_contact(id)
+
+
+    def create_invoice(self, contactID):
+        """
+        Sample Payload:
+         '
+            {
+             "archived": false,
+              "voucherDate": "2017-02-22T00:00:00.000+01:00",
+               "address": {
+               "name": "Bike & Ride GmbH & Co. KG",
+                "supplement": "Gebäude 10",
+                "street": "Musterstraße 42",
+                "city": "Freiburg",
+                "zip": "79112",
+                "countryCode": "DE"
+              },
+              "lineItems": [
+                {
+                  "type": "custom",
+                  "name": "Energieriegel Testpaket",
+                  "quantity": 1,
+                  "unitName": "Stück",
+                  "unitPrice": {
+                    "currency": "EUR",
+                    "netAmount": 5,
+                    "taxRatePercentage": 0
+                  },
+                  "discountPercentage": 0
+                },
+                {
+                  "type": "text",
+                  "name": "Strukturieren Sie Ihre Belege durch Text-Elemente.",
+                  "description": "Das hilft beim Verständnis"
+                }
+              ],
+              "totalPrice": {
+                "currency": "EUR"
+               },
+              "taxConditions": {
+                "taxType": "net"
+              },
+              "paymentConditions": {
+                "paymentTermLabel": "10 Tage - 3 %, 30 Tage netto",
+                "paymentTermDuration": 30,
+                "paymentDiscountConditions": {
+                  "discountPercentage": 3,
+                  "discountRange": 10
+                }
+              },
+              "shippingConditions": {
+                "shippingDate": "2017-04-22T00:00:00.000+02:00",
+                "shippingType": "delivery"
+              },
+              "title": "Rechnung",
+              "introduction": "Ihre bestellten Positionen stellen wir Ihnen hiermit in Rechnung",
+              "remark": "Vielen Dank für Ihren Einkauf"
+            }
+            '
+        """
+
+        payload = {
+            "contactID": contactID
+        }
+
+        return self.get_invoice(id)

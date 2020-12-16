@@ -116,3 +116,11 @@ def test_create_company_with_contact_person(lexoffice):
     company = lexoffice.create_company(name="Testfirma", contact_primary=True, contact_salutation="Herr", contact_first_name="Berthold", contact_last_name="Maier",)
 
     assert company.get("company").get("contactPersons")[0].get('firstName') == "Berthold"
+
+
+
+def test_search_contact(lexoffice):
+
+    company = lexoffice.create_company(name="FindeMich")
+    search_results = lexoffice.search_contact(searchTerm="FindeMich")
+    assert company.get('id') in search_results
