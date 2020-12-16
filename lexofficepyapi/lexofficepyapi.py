@@ -101,6 +101,9 @@ class Lexoffice:
             for key, value in details.items():
                 if value == searchTerm:
                     search_results.append(contact_id)
+                elif isinstance(value, str):
+                    if searchTerm in value:
+                        search_results.append(contact_id)
 
         return search_results
 
@@ -270,7 +273,9 @@ class Lexoffice:
             "phoneNumbers": {},
             "note": note,
         }
-
+        results = self.search_contact(searchTerm=name)
+        if len(results) > 0:
+            return self.get_contact(results[0])
         response = requests.post(resource_url, json=payload, headers=self.headers)
         id = response.json().get("id")
         return self.get_contact(id)
