@@ -138,7 +138,7 @@ def test_creating_an_invoice(lexoffice):
     else:
         taxpercentage = "19"
     price = "10.00"
-    line_item = LineItem(name="Item", quantity=5, price=price, taxRatePercentage=taxpercentage, unitName="DSB")
+    line_item = LineItem(name="DSB", quantity=5, price=price, taxRatePercentage=taxpercentage, unitName="TW")
 
     invoice = lexoffice.create_invoice(company.get('id'), line_item_list=[line_text.to_dict(),line_item.to_dict()])
 
