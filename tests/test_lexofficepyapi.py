@@ -2,11 +2,15 @@
 
 """Tests for `lexofficepyapi` package."""
 import os
+from dataclasses import asdict
+from datetime import datetime
+from decimal import Decimal
 
 import pytest
 import mock
 from lexofficepyapi import Lexoffice
-from lexofficepyapi.lexofficepyapi import ImproperlyConfigured
+from lexofficepyapi.dataclasses import LineText, LineItem
+from lexofficepyapi.exceptions import ImproperlyConfigured
 
 
 def test_ImproperlyConfigured():
@@ -124,3 +128,18 @@ def test_search_contact(lexoffice):
     company = lexoffice.create_company(name="Bike and More")
     search_results = lexoffice.search_contact(searchTerm="Bike")
     assert company.get('id') in search_results
+
+
+def test_creating_an_invoice(lexoffice):
+    company = lexoffice.create_company(name="Heribert AG", )
+    line_text = LineText(name="Trenner", description='Beschreibung')
+    if datetime.now().year == 2020:
+        taxpercentage = "16"
+    else:
+        taxpercentage = "19"
+    price = "10.00"
+    line_item = LineItem(name="Item", quantity=5, price=price, taxRatePercentage=taxpercentage, unitName="DSB")
+
+    invoice = lexoffice.create_invoice(company.get('id'), line_item_list=[line_text.to_dict(),line_item.to_dict()])
+
+    assert invoice.get('id')

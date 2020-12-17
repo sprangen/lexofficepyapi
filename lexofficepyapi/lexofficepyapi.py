@@ -1,54 +1,12 @@
 """Main module."""
 from dataclasses import dataclass, asdict
+from datetime import datetime
 
 import requests as requests
 
 
-class ImproperlyConfigured(Exception):
-    pass
-
-
-@dataclass
-class Person:
-    salutation: str
-    firstName: str
-    lastName: str
-    emailAddress: str
-    phoneNumber: str
-    primary: bool
-
-    def empty(self):
-        for key, value in asdict(self).items():
-            if value:
-                return False
-        return True
-
-
-    def validate_salutation(self):
-        if len(self.salutation) > 25:
-            raise ImproperlyConfigured(
-                "Lexoffice only accepts a Salutation with lesser then 25 Chars"
-            )
-
-    def validate(self):
-        if self.salutation:
-            self.validate_salutation()
-
-        to_validate = not(self.empty())
-
-        if to_validate:
-            for key, value in asdict(self).items():
-                if key == 'salutation':
-                    pass
-                elif key == "emailAddress":
-                    pass
-                elif key == "phoneNumber":
-                    pass
-                elif value is None:
-                    raise ImproperlyConfigured(
-                        f"Lexoffice needs {key} to create a Company Contact"
-                    )
-
+from lexofficepyapi.dataclasses import Person
+from lexofficepyapi.exceptions import ImproperlyConfigured
 
 
 class Lexoffice:
@@ -281,7 +239,7 @@ class Lexoffice:
         return self.get_contact(id)
 
 
-    def create_invoice(self, contactID):
+    def create_invoice(self, contactID, line_item_list):
         """
         Sample Payload:
          '
@@ -340,8 +298,27 @@ class Lexoffice:
             '
         """
 
+        lexware_now = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.000+00:00')
         payload = {
-            "contactID": contactID
+            "voucherDate": lexware_now,
+            "address": {
+                "contactId": contactID,
+            },
+            "lineItems": line_item_list,
+            "totalPrice": {
+                "currency": "EUR"
+            },
+            "taxConditions": {
+                "taxType": "net"
+            },
+            "shippingConditions": {
+                "shippingDate": lexware_now,
+                "shippingType": "service"
+            },
         }
+        resource_url = self.base_url + 'invoices'
+
+        response = requests.post(resource_url, json=payload, headers=self.headers)
+        id = response.json().get("id")
 
         return self.get_invoice(id)
